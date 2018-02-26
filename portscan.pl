@@ -1,6 +1,5 @@
 use strict;
 use warnings;
-use Math::Complex;
 
 sub usage {
 	print "Usage: portscan.pl [Target Address(es)] [Target Port(s)] ";
@@ -14,7 +13,7 @@ sub parseInputAsRange {
 	my @lower = split(/\./, $addresses[0]);
 	my @upper = split(/\./, $addresses[1]);
 	
-	return (@lower, @upper);
+	return ([@lower], [@upper]);
 }
 
 
@@ -34,13 +33,34 @@ sub parseInputAsCIDR {
 		$index -= 1;
 	}
 	
-	return (@lower, @upper);
+	return ([@lower], [@upper]);
 }
 
 
 sub parseInputAsAddress {
 	my @components = split(/\./, shift);
-	return (@components, @components);
+	return ([@components], [@components]);
+}
+
+
+sub scanTargets {
+	my $addr_ref = shift;
+	my @addresses = @$addr_ref;
+	
+	my $lower_bound_ref = $addresses[0];
+	my $upper_bound_ref = $addresses[1];
+	my @lower_bound = @$lower_bound_ref;
+	my @upper_bound = @$upper_bound_ref;
+	
+	for my $a ($lower_bound[0] .. $upper_bound[0]) {
+		for my $b ($lower_bound[1] .. $upper_bound[1]) {
+			for my $c ($lower_bound[2] .. $upper_bound[2]) {
+				for my $d ($lower_bound[3] .. $upper_bound[3]) {
+					print "$a.$b.$c.$d\n";
+				}
+			}
+		}
+	}
 }
 
 
@@ -58,10 +78,12 @@ if (scalar(@ARGV) == 2) {
 	}
 	else { usage(); }
 	
-	if (!@target) { usage(); }
 	
-	print join(", ", @target);
+	if (!@target) { usage(); }
+
+	scanTargets(\@target);
 }
+
 else {
 	usage();
 }
