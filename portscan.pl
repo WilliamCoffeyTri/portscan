@@ -1,6 +1,5 @@
 use strict;
 use warnings;
-use IO::Socket::PortState qw(check_ports);
 
 sub usage {
 	print "Usage: portscan.pl [Target Address(es)] [Target Port(s)] ";
@@ -78,8 +77,6 @@ sub scanTargets {
 	my @lower_bound = @$lower_bound_ref;
 	my @upper_bound = @$upper_bound_ref;
 	
-	print "Ports: " . join(", ", @ports) . "\n";
-	
 	for my $a ($lower_bound[0] .. $upper_bound[0]) {
 		for my $b ($lower_bound[1] .. $upper_bound[1]) {
 			for my $c ($lower_bound[2] .. $upper_bound[2]) {
@@ -100,7 +97,10 @@ sub scanPorts {
 	my @ports = @$ports_ref;
 	
 	for my $port (@ports) {
-		
+		my $result = system("echo \"(echo </dev/tcp/$target/$port)\" | /bin/bash >/dev/null 2>/dev/null") >> 8;
+		if($result == 0) {
+			print("$port is open.\n");
+		}
 	}
 }
 
